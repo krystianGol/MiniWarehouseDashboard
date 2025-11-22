@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using DevExpress.Maui;
 
 namespace MiniWarehouseDashboard;
@@ -20,6 +20,9 @@ public static class MauiProgram
 #if DEBUG
 		builder.Logging.AddDebug();
 #endif
+
+		builder.Services.AddSingleton<ICsvDataService, CsvDataService>();
+		builder.Services.AddTransient<DashboardViewModel>();
 
 		return builder.Build();
 	}
