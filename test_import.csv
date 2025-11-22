@@ -1,0 +1,11 @@
+Product,Category,Qty,MinStock
+Laptop,Electronics,25,10
+Mouse,Electronics,150,20
+Keyboard,Electronics,80,15
+Monitor,Electronics,45,8
+Desk Chair,Furniture,30,5
+Standing Desk,Furniture,12,3
+Whiteboard,Office Supplies,8,2
+Markers,Office Supplies,200,50
+Notebooks,Office Supplies,120,30
+Pens,Office Supplies,500,100

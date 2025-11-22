@@ -2,6 +2,13 @@ namespace MiniWarehouseDashboard.Services;
 
 public class CsvDataService : ICsvDataService
 {
+    private readonly ICsvParserService _parserService;
+
+    public CsvDataService(ICsvParserService parserService)
+    {
+        _parserService = parserService;
+    }
+
     public async Task<List<WarehouseItem>> GetItemsAsync()
     {
         var items = new List<WarehouseItem>();
@@ -42,5 +49,10 @@ public class CsvDataService : ICsvDataService
         }
 
         return items;
+    }
+
+    public async Task<List<WarehouseItem>> ImportCsvAsync(Stream csvStream)
+    {
+        return await _parserService.ParseCsvAsync(csvStream);
     }
 }

@@ -188,6 +188,38 @@
             </Grid>
         </Border>
 
+        <!-- Import CSV Button (FAB) - Bottom Right, left of Refresh Button -->
+        <Border Grid.Row="1" 
+                Margin="0,0,250,50"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                StrokeThickness="0"
+                Padding="0"
+                WidthRequest="180"
+                HeightRequest="56">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#10B981" Offset="0.0" />
+                    <GradientStop Color="#059669" Offset="1.0" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="28"/>
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow Brush="#10B981" Offset="0,6" Radius="20" Opacity="0.6"/>
+            </Border.Shadow>
+            <Grid>
+                <Button Text="📁 Import CSV" 
+                        Command="{Binding ImportCsvCommand}"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                        BackgroundColor="Transparent"
+                        TextColor="White"
+                        FontSize="14"
+                        FontAttributes="Bold"/>
+            </Grid>
+        </Border>
+
     </Grid>
 
 </ContentPage>

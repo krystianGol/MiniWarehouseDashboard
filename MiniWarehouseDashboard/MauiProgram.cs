@@ -21,6 +21,7 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 
+		builder.Services.AddSingleton<ICsvParserService, CsvParserService>();
 		builder.Services.AddSingleton<ICsvDataService, CsvDataService>();
 		builder.Services.AddTransient<DashboardViewModel>();
 
