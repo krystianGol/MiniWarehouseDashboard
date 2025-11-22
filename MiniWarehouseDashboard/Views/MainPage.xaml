@@ -8,7 +8,7 @@
              xmlns:local="clr-namespace:MiniWarehouseDashboard.Converters"
              x:Class="MiniWarehouseDashboard.Views.MainPage"
              x:DataType="viewmodel:DashboardViewModel"
-             Title="Dashboard">
+             BackgroundColor="#0F172A">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -16,85 +16,162 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="Auto,*,Auto" Padding="10" RowSpacing="10">
+    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="0">
         
-        <!-- Header -->
-        <Label Text="Warehouse Overview" 
-               FontSize="24" 
-               FontAttributes="Bold" 
-               HorizontalOptions="Center" />
-
-        <!-- Content -->
-        <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="10">
-            
-            <!-- Left: Data Grid -->
-            <dxg:DataGridView ItemsSource="{Binding Items}" 
-                              AutoGenerateColumnsMode="None">
-                <dxg:DataGridView.Columns>
-                    <dxg:TextColumn FieldName="Name" Caption="Product" Width="150"/>
-                    <dxg:TextColumn FieldName="Category" Caption="Category" Width="100"/>
-                    <dxg:NumberColumn FieldName="Quantity" Caption="Qty" Width="70"/>
-                    <dxg:CheckBoxColumn FieldName="IsLowStock" Caption="Low Stock" Width="80"/>
-                </dxg:DataGridView.Columns>
-            </dxg:DataGridView>
-
-            <!-- Right: Charts & Gauges -->
-            <Grid Grid.Column="1" RowDefinitions="*,*" RowSpacing="10">
-                
-                <!-- Top 5 Chart -->
-                <dxc:ChartView>
-                    <dxc:ChartView.Series>
-                        <dxc:BarSeries DisplayName="Quantity">
-                            <dxc:BarSeries.Data>
-                                <dxc:SeriesDataAdapter DataSource="{Binding TopItems}"
-                                                       ArgumentDataMember="Name">
-                                    <dxc:ValueDataMember Type="Value" Member="Quantity"/>
-                                </dxc:SeriesDataAdapter>
-                            </dxc:BarSeries.Data>
-                        </dxc:BarSeries>
-                    </dxc:ChartView.Series>
-                    <dxc:ChartView.AxisX>
-                        <dxc:NumericAxisX/>
-                    </dxc:ChartView.AxisX>
-                    <dxc:ChartView.AxisY>
-                        <dxc:NumericAxisY/>
-                    </dxc:ChartView.AxisY>
-                </dxc:ChartView>
-
-                <!-- Low Stock Gauge -->
-                <dxga:RadialGauge Grid.Row="1">
-                    <dxga:RadialGauge.Scales>
-                        <dxga:RadialGaugeScale StartValue="0" EndValue="100">
-                            <dxga:RadialGaugeScale.Ranges>
-                                <dxga:RadialGaugeRange StartValue="0" EndValue="20" BackgroundColor="Green"/>
-                                <dxga:RadialGaugeRange StartValue="20" EndValue="50" BackgroundColor="Yellow"/>
-                                <dxga:RadialGaugeRange StartValue="50" EndValue="100" BackgroundColor="Red"/>
-                            </dxga:RadialGaugeScale.Ranges>
-                            <dxga:RadialGaugeScale.ValueIndicators>
-                                <dxga:RadialGaugeNeedle Value="{Binding LowStockPercentage}"/>
-                            </dxga:RadialGaugeScale.ValueIndicators>
-                            <dxga:RadialGaugeScale.LabelOptions>
-                                <dxga:RadialGaugeScaleLabelOptions FormatString="{}{0:F0}% Low Stock"/>
-                            </dxga:RadialGaugeScale.LabelOptions>
-                        </dxga:RadialGaugeScale>
-                    </dxga:RadialGauge.Scales>
-                </dxga:RadialGauge>
-
+        <!-- Modern Header with Gradient -->
+        <Border StrokeThickness="0" Padding="30,20" Margin="0">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#6366F1" Offset="0.0" />
+                    <GradientStop Color="#8B5CF6" Offset="0.5" />
+                    <GradientStop Color="#EC4899" Offset="1.0" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid ColumnDefinitions="*,Auto">
+                <VerticalStackLayout>
+                    <Label Text="Warehouse Dashboard" 
+                           FontSize="32" 
+                           FontAttributes="Bold" 
+                           TextColor="White"/>
+                    <Label Text="Real-time inventory monitoring" 
+                           FontSize="14" 
+                           TextColor="#E0E7FF"
+                           Margin="0,5,0,0"/>
+                </VerticalStackLayout>
+                <Border Grid.Column="1" 
+                        BackgroundColor="#FFFFFF20"
+                        StrokeThickness="0"
+                        Padding="15,10"
+                        VerticalOptions="Center"
+                        WidthRequest="120"
+                        HeightRequest="60">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="{Binding Items.Count}" 
+                               FontSize="24" 
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Total Items" 
+                               FontSize="11" 
+                               TextColor="#E0E7FF"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
             </Grid>
+        </Border>
+
+        <!-- Content with Cards -->
+        <Grid Grid.Row="1" ColumnDefinitions="2*,3*" ColumnSpacing="20" Padding="20">
+            
+            <!-- Left: Inventory Card -->
+            <Border Grid.Column="0" 
+                    BackgroundColor="#1E293B"
+                    StrokeThickness="0"
+                    Padding="20">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16"/>
+                </Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,4" Radius="20" Opacity="0.3"/>
+                </Border.Shadow>
+                <Grid RowDefinitions="Auto,*">
+                    <Label Text="📦 Inventory List" 
+                           FontSize="20" 
+                           FontAttributes="Bold" 
+                           TextColor="#F1F5F9"
+                           Margin="0,0,0,15"/>
+                    <Border Grid.Row="1" 
+                            BackgroundColor="#0F172A"
+                            StrokeThickness="0"
+                            Padding="0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12"/>
+                        </Border.StrokeShape>
+                        <dxg:DataGridView ItemsSource="{Binding Items}" 
+                                          AutoGenerateColumnsMode="None"
+                                          BackgroundColor="#0F172A">
+                            <dxg:DataGridView.Columns>
+                                <dxg:TextColumn FieldName="Name" Caption="Product" Width="*"/>
+                                <dxg:TextColumn FieldName="Category" Caption="Category" Width="150"/>
+                                <dxg:NumberColumn FieldName="Quantity" Caption="Qty" Width="80"/>
+                                <dxg:CheckBoxColumn FieldName="IsLowStock" Caption="Low" Width="70"/>
+                            </dxg:DataGridView.Columns>
+                        </dxg:DataGridView>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Right: Chart Card -->
+            <Border Grid.Column="1" 
+                    BackgroundColor="#1E293B"
+                    StrokeThickness="0"
+                    Padding="20">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16"/>
+                </Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,4" Radius="20" Opacity="0.3"/>
+                </Border.Shadow>
+                <Grid RowDefinitions="Auto,*">
+                    <Label Text="📊 Top 5 Products" 
+                           FontSize="20" 
+                           FontAttributes="Bold" 
+                           TextColor="#F1F5F9"
+                           Margin="0,0,0,15"/>
+                    <dxc:ChartView Grid.Row="1" BackgroundColor="#0F172A">
+                        <dxc:ChartView.Series>
+                            <dxc:BarSeries DisplayName="Quantity">
+                                <dxc:BarSeries.Data>
+                                    <dxc:SeriesDataAdapter DataSource="{Binding TopItems}"
+                                                           ArgumentDataMember="Name">
+                                        <dxc:ValueDataMember Type="Value" Member="Quantity"/>
+                                    </dxc:SeriesDataAdapter>
+                                </dxc:BarSeries.Data>
+                            </dxc:BarSeries>
+                        </dxc:ChartView.Series>
+                    </dxc:ChartView>
+                </Grid>
+            </Border>
         </Grid>
 
-        <!-- Footer: Refresh Button -->
-        <Button Grid.Row="2" 
-                Text="Refresh Data" 
-                Command="{Binding LoadDataCommand}"
-                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+        <!-- Modern Refresh Button -->
+        <Border Grid.Row="2" 
+                Margin="20,0,20,20"
+                StrokeThickness="0"
+                Padding="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="16"/>
+            </Border.StrokeShape>
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#6366F1" Offset="0.0" />
+                    <GradientStop Color="#8B5CF6" Offset="1.0" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.Shadow>
+                <Shadow Brush="#6366F1" Offset="0,4" Radius="12" Opacity="0.4"/>
+            </Border.Shadow>
+            <Button Text="🔄 Refresh Data" 
+                    Command="{Binding LoadDataCommand}"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                    BackgroundColor="Transparent"
+                    TextColor="White"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    HeightRequest="60"/>
+        </Border>
         
         <ActivityIndicator Grid.RowSpan="3" 
                            IsRunning="{Binding IsBusy}" 
                            IsVisible="{Binding IsBusy}"
                            HorizontalOptions="Center" 
                            VerticalOptions="Center"
-                           Color="Blue"/>
+                           Color="#8B5CF6"
+                           WidthRequest="60"
+                           HeightRequest="60"/>
 
     </Grid>
 
