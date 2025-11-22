@@ -18,7 +18,6 @@ public class CsvDataService : ICsvDataService
             using var stream = await FileSystem.OpenAppPackageFileAsync("inventory.csv");
             using var reader = new StreamReader(stream);
 
-            // Skip header
             await reader.ReadLineAsync();
 
             while (!reader.EndOfStream)

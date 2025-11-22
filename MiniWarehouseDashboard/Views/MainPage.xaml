@@ -18,7 +18,6 @@
 
     <Grid RowDefinitions="Auto,*" RowSpacing="0">
         
-        <!-- Modern Gradient Header with Glow -->
         <Border StrokeThickness="0" Padding="30,25" Margin="0">
             <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -59,7 +58,7 @@
                         <Shadow Brush="#10B981" Offset="0,4" Radius="16" Opacity="0.4"/>
                     </Border.Shadow>
                     <VerticalStackLayout Spacing="5" VerticalOptions="Center">
-                        <Label Text="{Binding Items.Count}" 
+                        <Label Text="{Binding FilteredItems.Count}" 
                                FontSize="32" 
                                FontAttributes="Bold"
                                TextColor="White"
@@ -75,128 +74,169 @@
             </Grid>
         </Border>
 
-        <!-- Content with Cards -->
-        <Grid Grid.Row="1" ColumnDefinitions="2*,3*" ColumnSpacing="24" Padding="24,24,24,120">
-            
-            <!-- Left: Inventory Card -->
-            <Border Grid.Column="0" 
-                    BackgroundColor="#1E293B"
-                    StrokeThickness="0"
-                    Padding="24">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="24"/>
-                </Border.StrokeShape>
-                <Border.Shadow>
-                    <Shadow Brush="Black" Offset="0,8" Radius="32" Opacity="0.4"/>
-                </Border.Shadow>
-                <Grid RowDefinitions="Auto,*">
-                    <Label Text="📦 Inventory List" 
-                           FontSize="22" 
-                           FontAttributes="Bold" 
-                           TextColor="#F1F5F9"
-                           Margin="0,0,0,18"/>
-                    <Border Grid.Row="1" 
-                            BackgroundColor="#0F172A"
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="24" Padding="24,24,24,120">
+                
+                <Border BackgroundColor="#1E293B"
+                        StrokeThickness="0"
+                        Padding="24,20">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="20"/>
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,6" Radius="24" Opacity="0.3"/>
+                    </Border.Shadow>
+                    <Grid RowDefinitions="Auto,Auto" RowSpacing="12">
+                        <Label Text="🔍 Search &amp; Filter" 
+                               FontSize="20" 
+                               FontAttributes="Bold" 
+                               TextColor="#F1F5F9"
+                               Margin="0,0,0,8"/>
+                        
+                        <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*,Auto" ColumnSpacing="12">
+                            <Entry Grid.Column="0"
+                                   Text="{Binding SearchProductName}"
+                                   Placeholder="Search product..."
+                                   PlaceholderColor="#64748B"
+                                   TextColor="#F1F5F9"
+                                   BackgroundColor="#0F172A"
+                                   FontSize="14"
+                                   HeightRequest="44"/>
+                            
+                            <Entry Grid.Column="1"
+                                   Text="{Binding SearchCategory}"
+                                   Placeholder="Search category..."
+                                   PlaceholderColor="#64748B"
+                                   TextColor="#F1F5F9"
+                                   BackgroundColor="#0F172A"
+                                   FontSize="14"
+                                   HeightRequest="44"/>
+                            
+                            <Entry Grid.Column="2"
+                                   Text="{Binding MinQuantity}"
+                                   Placeholder="Min Qty"
+                                   PlaceholderColor="#64748B"
+                                   TextColor="#F1F5F9"
+                                   BackgroundColor="#0F172A"
+                                   Keyboard="Numeric"
+                                   FontSize="14"
+                                   HeightRequest="44"/>
+                            
+                            <Entry Grid.Column="3"
+                                   Text="{Binding MaxQuantity}"
+                                   Placeholder="Max Qty"
+                                   PlaceholderColor="#64748B"
+                                   TextColor="#F1F5F9"
+                                   BackgroundColor="#0F172A"
+                                   Keyboard="Numeric"
+                                   FontSize="14"
+                                   HeightRequest="44"/>
+                            
+                            <Picker Grid.Column="4"
+                                    SelectedIndex="{Binding LowStockFilterIndex}"
+                                    TextColor="#F1F5F9"
+                                    BackgroundColor="#0F172A"
+                                    FontSize="14"
+                                    WidthRequest="180"
+                                    HeightRequest="44">
+                                <Picker.Items>
+                                    <x:String>All Items</x:String>
+                                    <x:String>Low Stock Only</x:String>
+                                    <x:String>Normal Stock Only</x:String>
+                                </Picker.Items>
+                            </Picker>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Grid ColumnDefinitions="2*,3*" ColumnSpacing="24">
+                    
+                    <Border Grid.Column="0"
+                            BackgroundColor="#1E293B"
                             StrokeThickness="0"
-                            Padding="0">
+                            Padding="24">
                         <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="16"/>
+                            <RoundRectangle CornerRadius="24"/>
                         </Border.StrokeShape>
-                        <dxg:DataGridView ItemsSource="{Binding Items}" 
-                                          AutoGenerateColumnsMode="None"
-                                          BackgroundColor="#0F172A">
-                            <dxg:DataGridView.Columns>
-                                <dxg:TextColumn FieldName="Name" Caption="Product" Width="*"/>
-                                <dxg:TextColumn FieldName="Category" Caption="Category" Width="150"/>
-                                <dxg:NumberColumn FieldName="Quantity" Caption="Qty" Width="80"/>
-                                <dxg:CheckBoxColumn FieldName="IsLowStock" Caption="Low" Width="70"/>
-                            </dxg:DataGridView.Columns>
-                        </dxg:DataGridView>
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,8" Radius="32" Opacity="0.4"/>
+                        </Border.Shadow>
+                        <Grid RowDefinitions="Auto,Auto" RowSpacing="18">
+                            <Label Text="📦 Inventory List" 
+                                   FontSize="22" 
+                                   FontAttributes="Bold" 
+                                   TextColor="#F1F5F9"/>
+                            
+                            <Border Grid.Row="1" 
+                                    BackgroundColor="#0F172A"
+                                    StrokeThickness="0"
+                                    Padding="0"
+                                    HeightRequest="450">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="16"/>
+                                </Border.StrokeShape>
+                                <dxg:DataGridView ItemsSource="{Binding FilteredItems}" 
+                                                  AutoGenerateColumnsMode="None"
+                                                  BackgroundColor="#0F172A">
+                                    <dxg:DataGridView.Columns>
+                                        <dxg:TextColumn FieldName="Name" Caption="Product" Width="*"/>
+                                        <dxg:TextColumn FieldName="Category" Caption="Category" Width="150"/>
+                                        <dxg:NumberColumn FieldName="Quantity" Caption="Qty" Width="80"/>
+                                        <dxg:CheckBoxColumn FieldName="IsLowStock" Caption="Low" Width="70"/>
+                                    </dxg:DataGridView.Columns>
+                                </dxg:DataGridView>
+                            </Border>
+                        </Grid>
                     </Border>
-                </Grid>
-            </Border>
 
-            <!-- Right: Chart Card -->
-            <Border Grid.Column="1" 
-                    BackgroundColor="#1E293B"
-                    StrokeThickness="0"
-                    Padding="24">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="24"/>
-                </Border.StrokeShape>
-                <Border.Shadow>
-                    <Shadow Brush="Black" Offset="0,8" Radius="32" Opacity="0.4"/>
-                </Border.Shadow>
-                <Grid RowDefinitions="Auto,*">
-                    <Label Text="📊 Products with Highest Quantity" 
-                           FontSize="22" 
-                           FontAttributes="Bold" 
-                           TextColor="#F1F5F9"
-                           Margin="0,0,0,18"/>
-                    <dxc:ChartView Grid.Row="1" BackgroundColor="Transparent">
-                        <dxc:ChartView.Series>
-                            <dxc:BarSeries DisplayName="Quantity">
-                                <dxc:BarSeries.Data>
-                                    <dxc:SeriesDataAdapter DataSource="{Binding TopItems}"
-                                                           ArgumentDataMember="Name">
-                                        <dxc:ValueDataMember Type="Value" Member="Quantity"/>
-                                    </dxc:SeriesDataAdapter>
-                                </dxc:BarSeries.Data>
-                            </dxc:BarSeries>
-                        </dxc:ChartView.Series>
-                    </dxc:ChartView>
+                    <Border Grid.Column="1"
+                            BackgroundColor="#1E293B"
+                            StrokeThickness="0"
+                            Padding="24">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="24"/>
+                        </Border.StrokeShape>
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,8" Radius="32" Opacity="0.4"/>
+                        </Border.Shadow>
+                        <Grid RowDefinitions="Auto,Auto" RowSpacing="18">
+                            <Label Text="📊 Products with Highest Quantity"
+                                   FontSize="22"
+                                   FontAttributes="Bold"
+                                   TextColor="#F1F5F9"/>
+                            <Border Grid.Row="1"
+                                    HeightRequest="450">
+                                <dxc:ChartView BackgroundColor="Transparent">
+                                    <dxc:ChartView.Series>
+                                        <dxc:BarSeries DisplayName="Quantity">
+                                            <dxc:BarSeries.Data>
+                                                <dxc:SeriesDataAdapter DataSource="{Binding TopItems}"
+                                                                       ArgumentDataMember="Name">
+                                                    <dxc:ValueDataMember Type="Value" Member="Quantity"/>
+                                                </dxc:SeriesDataAdapter>
+                                            </dxc:BarSeries.Data>
+                                        </dxc:BarSeries>
+                                    </dxc:ChartView.Series>
+                                </dxc:ChartView>
+                            </Border>
+                        </Grid>
+                    </Border>
+                    
                 </Grid>
-            </Border>
-        </Grid>
 
-        <!-- Floating Action Button (FAB) - Bottom Right -->
-        <Border Grid.Row="1" 
-                Margin="0,0,50,50"
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Border Grid.Row="1"
                 HorizontalOptions="End"
                 VerticalOptions="End"
+                Margin="0,0,30,30"
+                WidthRequest="180"
+                HeightRequest="56"
                 StrokeThickness="0"
                 Padding="0"
-                WidthRequest="180"
-                HeightRequest="56">
-            <Border.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                    <GradientStop Color="#7C3AED" Offset="0.0" />
-                    <GradientStop Color="#4F46E5" Offset="1.0" />
-                </LinearGradientBrush>
-            </Border.Background>
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="28"/>
-            </Border.StrokeShape>
-            <Border.Shadow>
-                <Shadow Brush="#7C3AED" Offset="0,6" Radius="20" Opacity="0.6"/>
-            </Border.Shadow>
-            <Grid>
-                <Button Text="🔄" 
-                        Command="{Binding LoadDataCommand}"
-                        IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
-                        BackgroundColor="Transparent"
-                        TextColor="White"
-                        FontSize="24"
-                        FontAttributes="Bold"/>
-                <ActivityIndicator IsRunning="{Binding IsBusy}" 
-                                   IsVisible="{Binding IsBusy}"
-                                   HorizontalOptions="Center" 
-                                   VerticalOptions="Center"
-                                   Color="White"
-                                   WidthRequest="24"
-                                   HeightRequest="24"/>
-            </Grid>
-        </Border>
-
-        <!-- Import CSV Button (FAB) - Bottom Right, left of Refresh Button -->
-        <Border Grid.Row="1" 
-                Margin="0,0,250,50"
-                HorizontalOptions="End"
-                VerticalOptions="End"
-                StrokeThickness="0"
-                Padding="0"
-                WidthRequest="180"
-                HeightRequest="56">
+                InputTransparent="False"
+                ZIndex="100">
             <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                     <GradientStop Color="#10B981" Offset="0.0" />
@@ -210,7 +250,7 @@
                 <Shadow Brush="#10B981" Offset="0,6" Radius="20" Opacity="0.6"/>
             </Border.Shadow>
             <Grid>
-                <Button Text="📁 Import CSV" 
+                <Button Text="📁 Import CSV"
                         Command="{Binding ImportCsvCommand}"
                         IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
                         BackgroundColor="Transparent"

@@ -7,6 +7,5 @@ public class WarehouseItem
     public int Quantity { get; set; }
     public int MinStock { get; set; }
 
-    // Helper property to determine if stock is low
     public bool IsLowStock => Quantity < MinStock;
 }

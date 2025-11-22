@@ -10,7 +10,6 @@ public class CsvParserService : ICsvParserService
         {
             using var reader = new StreamReader(csvStream);
             
-            // Read and validate header
             var headerLine = await reader.ReadLineAsync();
             if (string.IsNullOrWhiteSpace(headerLine))
             {
@@ -19,7 +18,6 @@ public class CsvParserService : ICsvParserService
 
             var headers = headerLine.Split(',').Select(h => h.Trim()).ToArray();
             
-            // Validate required columns exist
             var productIndex = Array.FindIndex(headers, h => h.Equals("Product", StringComparison.OrdinalIgnoreCase));
             var categoryIndex = Array.FindIndex(headers, h => h.Equals("Category", StringComparison.OrdinalIgnoreCase));
             var qtyIndex = Array.FindIndex(headers, h => h.Equals("Qty", StringComparison.OrdinalIgnoreCase));
@@ -32,7 +30,6 @@ public class CsvParserService : ICsvParserService
                     $"Found columns: {string.Join(", ", headers)}");
             }
 
-            // Parse data rows
             int lineNumber = 1;
             while (!reader.EndOfStream)
             {
@@ -52,7 +49,6 @@ public class CsvParserService : ICsvParserService
 
                 try
                 {
-                    // Parse and validate numeric fields
                     if (!int.TryParse(values[qtyIndex], out int quantity))
                     {
                         throw new InvalidDataException($"Line {lineNumber}: Invalid quantity value '{values[qtyIndex]}'. Must be a number.");
@@ -63,7 +59,6 @@ public class CsvParserService : ICsvParserService
                         throw new InvalidDataException($"Line {lineNumber}: Invalid minimum stock value '{values[lowIndex]}'. Must be a number.");
                     }
 
-                    // Create warehouse item
                     items.Add(new WarehouseItem
                     {
                         Name = values[productIndex],
@@ -88,7 +83,7 @@ public class CsvParserService : ICsvParserService
         }
         catch (InvalidDataException)
         {
-            throw; // Re-throw validation errors as-is
+            throw;
         }
         catch (Exception ex)
         {

@@ -7,8 +7,14 @@ public class DashboardViewModel : BaseViewModel
     private readonly ICsvDataService _dataService;
     private bool _isBusy;
     private double _lowStockPercentage;
+    private string _searchProductName = string.Empty;
+    private string _searchCategory = string.Empty;
+    private string _minQuantity = string.Empty;
+    private string _maxQuantity = string.Empty;
+    private int _lowStockFilterIndex = 0;
 
     public ObservableCollection<WarehouseItem> Items { get; } = new();
+    public ObservableCollection<WarehouseItem> FilteredItems { get; } = new();
     public ObservableCollection<WarehouseItem> TopItems { get; } = new();
 
     public bool IsBusy
@@ -23,14 +29,66 @@ public class DashboardViewModel : BaseViewModel
         set => SetProperty(ref _lowStockPercentage, value);
     }
 
+    public string SearchProductName
+    {
+        get => _searchProductName;
+        set
+        {
+            if (SetProperty(ref _searchProductName, value))
+                ApplyFilters();
+        }
+    }
+
+    public string SearchCategory
+    {
+        get => _searchCategory;
+        set
+        {
+            if (SetProperty(ref _searchCategory, value))
+                ApplyFilters();
+        }
+    }
+
+    public string MinQuantity
+    {
+        get => _minQuantity;
+        set
+        {
+            if (SetProperty(ref _minQuantity, value))
+                ApplyFilters();
+        }
+    }
+
+    public string MaxQuantity
+    {
+        get => _maxQuantity;
+        set
+        {
+            if (SetProperty(ref _maxQuantity, value))
+                ApplyFilters();
+        }
+    }
+
+    public int LowStockFilterIndex
+    {
+        get => _lowStockFilterIndex;
+        set
+        {
+            if (SetProperty(ref _lowStockFilterIndex, value))
+                ApplyFilters();
+        }
+    }
+
     public ICommand LoadDataCommand { get; }
     public ICommand ImportCsvCommand { get; }
+    public ICommand ClearFiltersCommand { get; }
 
     public DashboardViewModel(ICsvDataService dataService)
     {
         _dataService = dataService;
         LoadDataCommand = new Command(async () => await LoadDataAsync());
         ImportCsvCommand = new Command(async () => await ImportCsvAsync());
+        ClearFiltersCommand = new Command(ClearFilters);
     }
 
     private async Task LoadDataAsync()
@@ -48,11 +106,11 @@ public class DashboardViewModel : BaseViewModel
                 Items.Add(item);
             }
 
-            // Update Top 5 chart
             UpdateTopItems();
 
-            // Recalculate Low Stock Percentage
             UpdateLowStockPercentage();
+
+            ApplyFilters();
         }
         catch (Exception ex)
         {
@@ -70,7 +128,6 @@ public class DashboardViewModel : BaseViewModel
 
         try
         {
-            // Open file picker for CSV files
             var customFileType = new FilePickerFileType(
                 new Dictionary<DevicePlatform, IEnumerable<string>>
                 {
@@ -89,27 +146,20 @@ public class DashboardViewModel : BaseViewModel
             var result = await FilePicker.Default.PickAsync(options);
             
             if (result == null)
-                return; // User cancelled
+                return;
 
             IsBusy = true;
 
-            // Open and read the CSV file
             using var stream = await result.OpenReadAsync();
             var importedItems = await _dataService.ImportCsvAsync(stream);
 
-            // Add imported items to existing collection
             foreach (var item in importedItems)
             {
                 Items.Add(item);
             }
 
-            // Update Top 5 chart
-            UpdateTopItems();
+            ApplyFilters();
 
-            // Recalculate Low Stock Percentage
-            UpdateLowStockPercentage();
-
-            // Show success message
             await Application.Current.MainPage.DisplayAlert(
                 "Success", 
                 $"Successfully imported {importedItems.Count} items from CSV.", 
@@ -117,7 +167,6 @@ public class DashboardViewModel : BaseViewModel
         }
         catch (InvalidDataException ex)
         {
-            // Show user-friendly error message for CSV format issues
             await Application.Current.MainPage.DisplayAlert(
                 "Import Error", 
                 $"Invalid CSV format:\n{ex.Message}", 
@@ -125,7 +174,6 @@ public class DashboardViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            // Show generic error message
             await Application.Current.MainPage.DisplayAlert(
                 "Error", 
                 $"Failed to import CSV file:\n{ex.Message}", 
@@ -141,7 +189,7 @@ public class DashboardViewModel : BaseViewModel
     private void UpdateTopItems()
     {
         TopItems.Clear();
-        var top5 = Items.OrderByDescending(i => i.Quantity).Take(5);
+        var top5 = FilteredItems.OrderByDescending(i => i.Quantity).Take(5);
         foreach (var item in top5)
         {
             TopItems.Add(item);
@@ -150,14 +198,67 @@ public class DashboardViewModel : BaseViewModel
 
     private void UpdateLowStockPercentage()
     {
-        if (Items.Any())
+        if (FilteredItems.Any())
         {
-            var lowStockCount = Items.Count(i => i.IsLowStock);
-            LowStockPercentage = (double)lowStockCount / Items.Count * 100;
+            var lowStockCount = FilteredItems.Count(i => i.IsLowStock);
+            LowStockPercentage = (double)lowStockCount / FilteredItems.Count * 100;
         }
         else
         {
             LowStockPercentage = 0;
         }
+    }
+
+    private void ApplyFilters()
+    {
+        FilteredItems.Clear();
+
+        var filtered = Items.AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(SearchProductName))
+        {
+            filtered = filtered.Where(i => i.Name.Contains(SearchProductName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (!string.IsNullOrWhiteSpace(SearchCategory))
+        {
+            filtered = filtered.Where(i => i.Category.Contains(SearchCategory, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (!string.IsNullOrWhiteSpace(MinQuantity) && int.TryParse(MinQuantity, out int minQty))
+        {
+            filtered = filtered.Where(i => i.Quantity >= minQty);
+        }
+
+        if (!string.IsNullOrWhiteSpace(MaxQuantity) && int.TryParse(MaxQuantity, out int maxQty))
+        {
+            filtered = filtered.Where(i => i.Quantity <= maxQty);
+        }
+
+        if (LowStockFilterIndex == 1)
+        {
+            filtered = filtered.Where(i => i.IsLowStock);
+        }
+        else if (LowStockFilterIndex == 2)
+        {
+            filtered = filtered.Where(i => !i.IsLowStock);
+        }
+
+        foreach (var item in filtered)
+        {
+            FilteredItems.Add(item);
+        }
+
+        UpdateTopItems();
+        UpdateLowStockPercentage();
+    }
+
+    private void ClearFilters()
+    {
+        SearchProductName = string.Empty;
+        SearchCategory = string.Empty;
+        MinQuantity = string.Empty;
+        MaxQuantity = string.Empty;
+        LowStockFilterIndex = 0;
     }
 }
