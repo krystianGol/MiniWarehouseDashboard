@@ -1,24 +1,94 @@
-﻿namespace MiniWarehouseDashboard.Views;
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:dxg="clr-namespace:DevExpress.Maui.DataGrid;assembly=DevExpress.Maui.DataGrid"
+             xmlns:dxc="clr-namespace:DevExpress.Maui.Charts;assembly=DevExpress.Maui.Charts"
+             xmlns:dxga="clr-namespace:DevExpress.Maui.Gauges;assembly=DevExpress.Maui.Gauges"
+             xmlns:viewmodel="clr-namespace:MiniWarehouseDashboard.ViewModels"
+             x:Class="MiniWarehouseDashboard.Views.MainPage"
+             x:DataType="viewmodel:DashboardViewModel"
+             Title="Dashboard">
 
-public partial class MainPage : ContentPage
-{
-	int count = 0;
+    <Grid RowDefinitions="Auto,*,Auto" Padding="10" RowSpacing="10">
+        
+        <!-- Header -->
+        <Label Text="Warehouse Overview" 
+               FontSize="24" 
+               FontAttributes="Bold" 
+               HorizontalOptions="Center" />
 
-	public MainPage()
-	{
-		InitializeComponent();
-	}
+        <!-- Content -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="10">
+            
+            <!-- Left: Data Grid -->
+            <dxg:DataGridView ItemsSource="{Binding Items}" 
+                              AutoGenerateColumnsMode="None">
+                <dxg:DataGridView.Columns>
+                    <dxg:TextColumn FieldName="Name" Caption="Product" Width="150"/>
+                    <dxg:TextColumn FieldName="Category" Caption="Category" Width="100"/>
+                    <dxg:NumberColumn FieldName="Quantity" Caption="Qty" Width="70"/>
+                    <dxg:CheckBoxColumn FieldName="IsLowStock" Caption="Low Stock" Width="80"/>
+                </dxg:DataGridView.Columns>
+            </dxg:DataGridView>
 
-	private void OnCounterClicked(object sender, EventArgs e)
-	{
-		count++;
+            <!-- Right: Charts & Gauges -->
+            <Grid Grid.Column="1" RowDefinitions="*,*" RowSpacing="10">
+                
+                <!-- Top 5 Chart -->
+                <dxc:ChartView>
+                    <dxc:ChartView.Series>
+                        <dxc:BarSeries DisplayName="Quantity">
+                            <dxc:BarSeries.Data>
+                                <dxc:SeriesDataAdapter DataSource="{Binding TopItems}"
+                                                       ArgumentDataMember="Name">
+                                    <dxc:ValueDataMember Type="Value" Member="Quantity"/>
+                                </dxc:SeriesDataAdapter>
+                            </dxc:BarSeries.Data>
+                        </dxc:BarSeries>
+                    </dxc:ChartView.Series>
+                    <dxc:ChartView.AxisX>
+                        <dxc:NumericAxisX/>
+                    </dxc:ChartView.AxisX>
+                    <dxc:ChartView.AxisY>
+                        <dxc:NumericAxisY/>
+                    </dxc:ChartView.AxisY>
+                </dxc:ChartView>
 
-		if (count == 1)
-			CounterBtn.Text = $"Clicked {count} time";
-		else
-			CounterBtn.Text = $"Clicked {count} times";
+                <!-- Low Stock Gauge -->
+                <dxga:RadialGauge Grid.Row="1">
+                    <dxga:RadialGauge.Scales>
+                        <dxga:RadialGaugeScale StartValue="0" EndValue="100">
+                            <dxga:RadialGaugeScale.Ranges>
+                                <dxga:RadialGaugeRange StartValue="0" EndValue="20" BackgroundColor="Green"/>
+                                <dxga:RadialGaugeRange StartValue="20" EndValue="50" BackgroundColor="Yellow"/>
+                                <dxga:RadialGaugeRange StartValue="50" EndValue="100" BackgroundColor="Red"/>
+                            </dxga:RadialGaugeScale.Ranges>
+                            <dxga:RadialGaugeScale.ValueIndicators>
+                                <dxga:RadialGaugeNeedle Value="{Binding LowStockPercentage}"/>
+                            </dxga:RadialGaugeScale.ValueIndicators>
+                            <dxga:RadialGaugeScale.LabelOptions>
+                                <dxga:RadialGaugeScaleLabelOptions FormatString="{}{0:F0}% Low Stock"/>
+                            </dxga:RadialGaugeScale.LabelOptions>
+                        </dxga:RadialGaugeScale>
+                    </dxga:RadialGauge.Scales>
+                </dxga:RadialGauge>
 
-		SemanticScreenReader.Announce(CounterBtn.Text);
-	}
-}
+            </Grid>
+        </Grid>
 
+        <!-- Footer: Refresh Button -->
+        <Button Grid.Row="2" 
+                Text="Refresh Data" 
+                Command="{Binding LoadDataCommand}"
+                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+        
+        <ActivityIndicator Grid.RowSpan="3" 
+                           IsRunning="{Binding IsBusy}" 
+                           IsVisible="{Binding IsBusy}"
+                           HorizontalOptions="Center" 
+                           VerticalOptions="Center"
+                           Color="Blue"/>
+
+    </Grid>
+
+</ContentPage>
